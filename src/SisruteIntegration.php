@@ -26,6 +26,7 @@ class SisruteIntegration
     public function __construct()
     {
         $this->client = new Client([
+            'http_errors' => false,
             'verify' => false
         ]);
     }
@@ -94,10 +95,8 @@ class SisruteIntegration
 
     public function post($feature, $data = [], $header = null)
     {
-        $this->headers['Content-Type'] = 'Application/x-www-form-urlencoded';
-        if ($header != null) {
-            $this->headers['Content-Type'] = $header;
-        }
+        $this->headers['Content-Type'] = 'application/json';
+        $this->headers['Accept'] = 'application/json';
         try {
             $response = $this->client->request(
                 'POST',
@@ -115,7 +114,8 @@ class SisruteIntegration
 
     public function put($feature, $data = [])
     {
-        $this->headers['Content-Type'] = 'Application/x-www-form-urlencoded';
+        $this->headers['Content-Type'] = 'application/json';
+        $this->headers['Accept'] = 'application/json';
         try {
             $response = $this->client->request(
                 'PUT',
