@@ -12,9 +12,10 @@ class Referensi extends SisruteIntegration
         parent::__construct();
     }
 
-    public function faskes($kdFaskes = null)
+    public function faskes($kdFaskes = null, $query = null)
     {
         $service = $kdFaskes == null ? 'referensi/faskes' : 'referensi/faskes/'.$kdFaskes;
+        $service .= ($kdFaskes == null && $query != null) ? '?query='.$query : $service;
         $response = $this->get($service);
         return json_decode($response, true);
     }
