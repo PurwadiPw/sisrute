@@ -27,9 +27,10 @@ class Referensi extends SisruteIntegration
         return json_decode($response, true);
     }
 
-    public function diagnosa($kdIcd = null)
+    public function diagnosa($kdIcd = null, $query = null)
     {
         $service = $kdIcd == null ? 'referensi/diagnosa' : 'referensi/diagnosa/'.$kdIcd;
+        $service .= ($kdIcd == null && $query != null) ? '?query='.$query : $service;
         $response = $this->get($service);
         return json_decode($response, true);
     }
