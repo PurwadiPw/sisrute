@@ -26,7 +26,6 @@ class Rujukan extends SisruteIntegration
             ($tgl != null && $noRujukan != null) ? $service .= '&tanggal='.$tgl : 
             (($tgl !=null && $noRujukan == null) ? '?tanggal='.$tgl : $service)
         );
-        return $service;
         $response = $this->get($service);
         return json_decode($response, true);
     }
