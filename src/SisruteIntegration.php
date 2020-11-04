@@ -3,6 +3,8 @@
 namespace Sisrute;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 
 class SisruteIntegration
 {
@@ -27,7 +29,8 @@ class SisruteIntegration
     {
         $this->client = new Client([
             'http_errors' => false,
-            'verify' => false
+            'verify' => false,
+            'timeout' => 30,
         ]);
     }
 
@@ -54,7 +57,7 @@ class SisruteIntegration
         $this->headers = [
             'X-cons-id' => $this->cons_id,
             'X-Timestamp' => $this->timestamp,
-            'X-Signature' => $this->signature
+            'X-Signature' => $this->signature,
         ];
         return $this;
     }
@@ -75,18 +78,28 @@ class SisruteIntegration
         return $this;
     }
 
+    public function timeoutResponse()
+    {
+        $output = [
+            'status' => '202',
+            'success' => false,
+            'detail' => 'Koneksi ke server KEMKES bermasalah. Harap hubungi IT RS.',
+            'data' => [],
+        ];
+        return json_encode($output);
+    }
+
     public function get($feature)
     {
+        $url = $this->base_url . '/' . $feature;
         $this->headers['Content-Type'] = 'application/json;';
         $this->headers['Accept'] = 'application/json;';
         try {
-            $response = $this->client->request(
-                'GET',
-                $this->base_url . '/' . $feature,
-                [
-                    'headers' => $this->headers
-                ]
-            )->getBody()->getContents();
+            $response = $this->client->request('GET', $url, ['headers' => $this->headers])->getBody()->getContents();
+        } catch (ClientException $e) {
+            $response = $this->timeoutResponse();
+        } catch (RequestException $e) {
+            $response = $this->timeoutResponse();
         } catch (Exception $e) {
             $response = $e->getResponse()->getBody();
         }
@@ -95,17 +108,15 @@ class SisruteIntegration
 
     public function post($feature, $data = [], $header = null)
     {
+        $url = $this->base_url . '/' . $feature;
         $this->headers['Content-Type'] = 'application/json';
         $this->headers['Accept'] = 'application/json';
         try {
-            $response = $this->client->request(
-                'POST',
-                $this->base_url . '/' . $feature,
-                [
-                    'headers' => $this->headers,
-                    'json' => $data,
-                ]
-            )->getBody()->getContents();
+            $response = $this->client->request('POST', $url, ['headers' => $this->headers, 'json' => $data])->getBody()->getContents();
+        } catch (ClientException $e) {
+            $response = $this->timeoutResponse();
+        } catch (RequestException $e) {
+            $response = $this->timeoutResponse();
         } catch (Exception $e) {
             $response = $e->getResponse()->getBody();
         }
@@ -114,17 +125,15 @@ class SisruteIntegration
 
     public function put($feature, $data = [])
     {
+        $url = $this->base_url . '/' . $feature;
         $this->headers['Content-Type'] = 'application/json';
         $this->headers['Accept'] = 'application/json';
         try {
-            $response = $this->client->request(
-                'PUT',
-                $this->base_url . '/' . $feature,
-                [
-                    'headers' => $this->headers,
-                    'json' => $data,
-                ]
-            )->getBody()->getContents();
+            $response = $this->client->request('PUT', $url, ['headers' => $this->headers, 'json' => $data])->getBody()->getContents();
+        } catch (ClientException $e) {
+            $response = $this->timeoutResponse();
+        } catch (RequestException $e) {
+            $response = $this->timeoutResponse();
         } catch (Exception $e) {
             $response = $e->getResponse()->getBody();
         }
@@ -135,14 +144,11 @@ class SisruteIntegration
     {
         $this->headers['Content-Type'] = 'Application/x-www-form-urlencoded';
         try {
-            $response = $this->client->request(
-                'DELETE',
-                $this->base_url . '/' . $feature,
-                [
-                    'headers' => $this->headers,
-                    'json' => $data,
-                ]
-            )->getBody()->getContents();
+            $response = $this->client->request('DELETE', $this->base_url . '/' . $feature, ['headers' => $this->headers, 'json' => $data])->getBody()->getContents();
+        } catch (ClientException $e) {
+            $response = $this->timeoutResponse();
+        } catch (RequestException $e) {
+            $response = $this->timeoutResponse();
         } catch (Exception $e) {
             $response = $e->getResponse()->getBody();
         }
